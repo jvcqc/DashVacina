@@ -23,7 +23,10 @@ df_pizza_total = df_diario_paises.groupby('location')['people_fully_vaccinated']
 
 st.subheader("Total de Vacinações por Data e Países")
 
+# Mova o filtro para antes do pivot
+df_serie_temporal = df_serie_temporal[df_serie_temporal['location'].isin(paises_alvo)]
 df_pivot_serie = df_serie_temporal.pivot(index='date', columns='location', values='total_vaccinations')
+
 st.line_chart(df_pivot_serie)
 
 import plotly.express as px

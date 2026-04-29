@@ -11,14 +11,11 @@ import pandas as pd
 
 import streamlit as st
 
-df = pd.read_csv('/vacinacao - vacinacao.csv')
+df = pd.read_csv('vacinacao - vacinacao.csv')
 
 df['date'] = pd.to_datetime(df['date'])
 
 df['location'] = df['location'].str.upper()
-
-print(df.info())
-df.head()
 
 df_serie_temporal = df[['date', 'location', 'total_vaccinations']].dropna()
 

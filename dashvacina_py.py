@@ -3,53 +3,45 @@ import plotly.express as px
 import streamlit as st
 
 st.set_page_config(page_title="DashVacina", layout="wide")
+st.title("DASHVAICNA: Dados de Vacinação")
 
-st.title("DASHVACINA: Dados de Vacinação (Lógica Otimizada)")
-
-# 1. CARREGAMENTO
+# Lógica de carregamento (Igual ao Código 1)
 df = pd.read_csv('vacinacao.csv')
 
-# 2. FILTRAGEM PRECOCE (A lógica do Código 1: trabalhar só com o necessário)
-# Filtramos os países ANTES de qualquer conversão ou pivot
+# --- LÓGICA DE LIMPEZA (Inspirada no Código 1) ---
+
+# 1. Padronização (Como o str.replace do Código 1, mas para texto)
+df['location'] = df['location'].str.upper().str.strip()
+
+# 2. Filtragem de Colunas e Linhas (Como o iloc e dropna do Código 1)
 paises_alvo = ['BRAZIL', 'INDIA', 'UNITED STATES']
-df['location'] = df['location'].str.upper()
+df_paises = df[df['location'].isin(paises_alvo)].copy()
 
-# 3. Criamos um DataFrame que contém APENAS esses 3 países
-df_paises_selecionados = df[df['location'].isin(paises_alvo)]
+# Convertemos a data (Lógica de conversão de tipos)
+df_paises['date'] = pd.to_datetime(df_paises['date'])
 
-# 4. LIMPEZA (Igual à função clean_currency do Código 1, mas para datas)
-df_filtrado['date'] = pd.to_datetime(df_filtrado['date'])
+# --- GRÁFICO DE PIZZA (CORREÇÃO) ---
 
-# 5. PREPARAÇÃO PARA OS GRÁFICOS
-# Agora o pivot é instantâneo porque só tem 3 países
-df_pivot_serie = df_filtrado.pivot_table(
-    index='date', 
-    columns='location', 
-    values='total_vaccinations', 
-    aggfunc='max'
+st.subheader("Distribuição de Pessoas Totalmente Vacinadas")
+
+# Criamos um DataFrame específico para a pizza limpando valores nulos
+# Isso é IDÊNTICO ao dropna(subset=['ANO']) que você usou no código 1
+df_pizza_limpo = df_paises.dropna(subset=['people_fully_vaccinated'])
+
+# Pegamos o valor máximo de cada país após a limpeza
+df_pizza_total = df_pizza_limpo.groupby('location')['people_fully_vaccinated'].max().reset_index()
+
+# Gerar o gráfico com os 3 países
+fig_pizza = px.pie(
+    df_pizza_total,
+    values='people_fully_vaccinated',
+    names='location',
+    title='Total de Vacinados por País (BRA, IND, USA)'
 )
-
-# 6. VISUALIZAÇÃO
-st.subheader("Total de Vacinações por Data")
-st.line_chart(df_pivot_serie)
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("Vacinação Diária")
-    fig_hist = px.histogram(df_filtrado, x="date", y="daily_vaccinations", 
-                            color="location", barmode="group")
-    st.plotly_chart(fig_hist, use_container_width=True)
-
-with col2:
-    st.subheader("Distribuição de Pessoas Totalmente Vacinadas")
-    fig_pizza = px.pie(
-    df_pizza_total, 
-    values='people_fully_vaccinated', 
-    names='location', 
-    title='Total de Vacinados por País (BRA, IND, USA)',
-    color_discrete_sequence=px.colors.qualitative.Pastel # Opcional: cores diferentes
-)
-
 st.plotly_chart(fig_pizza, use_container_width=True)
+
+# --- OUTROS GRÁFICOS ---
+st.subheader("Vacinação Diária")
+fig_hist = px.histogram(df_paises, x="date", y="daily_vaccinations", color="location", barmode="group")
+st.plotly_chart(fig_hist, use_container_width=True)
 

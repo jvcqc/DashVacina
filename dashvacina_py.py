@@ -11,7 +11,7 @@ import pandas as pd
 
 import streamlit as st
 
-df = pd.read_csv('vacinacao - vacinacao.csv')
+df = pd.read_csv('vacinacao.csv')
 
 df['date'] = pd.to_datetime(df['date'])
 

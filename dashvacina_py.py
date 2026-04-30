@@ -8,7 +8,7 @@ Original file is located at
 """
 
 import pandas as pd
-!pip install streamlit -q
+import plotly.express as px
 import streamlit as st
 
 df = pd.read_csv('/vacinacao - vacinacao.csv')

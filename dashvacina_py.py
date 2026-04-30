@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="DashVacina",
     layout="wide")
 
-st.title("DASHVACINA: Um Dashboard sobre os Dados de Vacinação por Países e Datas")
+st.title("DASHVACINA: Um Dashboard sobre os Dados de Vacinação")
 
 # 2. CARREGAMENTO DOS DADOS
 df = pd.read_csv('vacinacao.csv')

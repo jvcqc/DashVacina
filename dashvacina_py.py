@@ -8,10 +8,10 @@ Original file is located at
 """
 
 import pandas as pd
-import plotly.express as px
+!pip install streamlit -q
 import streamlit as st
 
-df = pd.read_csv('vacinacao.csv')
+df = pd.read_csv('/vacinacao - vacinacao.csv')
 
 df['date'] = pd.to_datetime(df['date'])
 
@@ -27,51 +27,26 @@ df_diario_paises = df[df['location'].isin(paises_alvo)]
 
 df_pizza_total = df_diario_paises.groupby('location')['people_fully_vaccinated'].max().reset_index()
 
-# 1. Criando o gráfico com Plotly
-fig1 = px.line(df_serie_temporal, # Usando o DF que você limpou antes
-               x='date',
-               y='total_vaccinations',
-               color='location',
-               title='Total de pessoas vacinadas por data e país (Segundo a OMS)')
+st.subheader("Total de Vacinações por Data e Países")
 
-# 2. Ajustando os nomes dos eixos
-fig1.update_layout(xaxis_title='Data', yaxis_title='Total de pessoas vacinadas')
+df_pivot_serie = df_serie_temporal.pivot(index='date', columns='location', values='total_vaccinations')
+st.line_chart(df_pivot_serie)
 
-# 3. EXIBINDO NO STREAMLIT (O pulo do gato)
-st.plotly_chart(fig1)
+import plotly.express as px
 
-# 1. Criando o gráfico de histograma com Plotly
+st.subheader("Pessoas Diariamente Vacinadas (BRA, IND, USA)")
+
 fig_hist = px.histogram(df_diario_paises,
                         x="date",
                         y="daily_vaccinations",
                         color="location",
                         barmode="group",
-                        title="Pessoas Diariamente Vacinadas (BRA, IND, USA) - Segundo a OMS")
-
-# 2. Ajustando os nomes dos eixos e configurações de layout
-fig_hist.update_layout(
-    xaxis_title='Data',
-    yaxis_title='Vacinações Diárias',
-    legend_title='País'
-)
-
-# 3. Exibindo no Streamlit
+                        title="Vacinação Diária")
 st.plotly_chart(fig_hist)
 
-# 1. Criando o gráfico de pizza com Plotly
+st.subheader("Distribuição de Pessoas Totalmente Vacinadas")
 fig_pizza = px.pie(df_pizza_total,
                    values='people_fully_vaccinated',
                    names='location',
-                   title='Distribuição de Pessoas Totalmente Vacinadas - Segundo a OMS')
-
-# 2. Ajustando as configurações de layout e legenda
-# Nota: Como pizza não tem eixos (X e Y), focamos na legenda e na informação dentro das fatias
-fig_pizza.update_layout(
-    legend_title='País'
-)
-
-# Opcional: Melhora a exibição dos números dentro ou fora das fatias
-fig_pizza.update_traces(textinfo='percent+label')
-
-# 3. Exibindo no Streamlit
+                   title='Total de Vacinados por País')
 st.plotly_chart(fig_pizza)
